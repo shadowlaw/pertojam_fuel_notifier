@@ -1,22 +1,28 @@
+import distutils
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # TODO: Add config via .env file
 # TODO: Add logging
 # TODO: Exception handling for page timeout and table not found (send notification to admin)
 # TODO: Save new price changes to database
 
-CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/chromedriver-100.0.4896.60')
+# get fuel data
+CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/{os.getenv("SELENIUM_CHROME_DRIVER")}')
 
 options = webdriver.ChromeOptions()
-options.headless = True
+options.headless = bool(distutils.util.strtobool(os.getenv("SELENIUM_HEADLESS")))
 driver = webdriver.Chrome(service=Service(CHROMEDRIVER_PATH), options=options)
 
 
-driver.get("https://www.petrojam.com/")
-table = driver.find_element(by=By.XPATH, value='//*[@id="wpv-view-layout-1528"]/div/div/table[1]')
+driver.get(os.getenv("FUEL_URL"))
+table = driver.find_element(by=By.XPATH, value=os.getenv("FUEL_TABLE_PATH"))
 
 table_arr = table.text.split('\n')
 driver.close()
