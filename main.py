@@ -14,7 +14,6 @@ from utils import retry_function
 
 logger = logging.getLogger(__name__)
 
-# TODO: Exception handling for page timeout and table not found (send notification to admin)
 # TODO: Save new price changes to database
 # TODO: Graph screenshot with price change over time period
 
@@ -94,5 +93,6 @@ try:
         logger.info(response_msg)
     else:
         logger.error(response_msg)
+        logger.error(response.text)
 except Exception as e:
     logger.critical(f"{type(e).__name__}:{e}")
