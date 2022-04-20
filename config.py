@@ -2,6 +2,9 @@ from dotenv import load_dotenv
 import logging.config
 from os import getenv
 
+from sqlalchemy.orm import declarative_base
+
+
 from custom_logging.handler.TelegramMessageHandler import TelegramMessageHandler
 
 load_dotenv()
@@ -35,3 +38,5 @@ LOGGING_CONFIG = {
 }
 
 logging.config.dictConfig(LOGGING_CONFIG)
+
+Base = declarative_base()
