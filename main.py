@@ -1,4 +1,6 @@
+import distutils
 import sys
+import time
 from distutils.util import strtobool
 import requests
 from selenium import webdriver
@@ -18,13 +20,20 @@ logger = logging.getLogger(__name__)
 # TODO: Graph screenshot with price change over time period
 
 # get fuel data
-CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/{os.getenv("SELENIUM_CHROME_DRIVER")}')
-
+driver = None
 options = webdriver.ChromeOptions()
 options.headless = bool(strtobool(os.getenv("SELENIUM_HEADLESS")))
 options.add_argument('--ignore-ssl-errors=yes')
 options.add_argument('--ignore-certificate-errors')
-driver = webdriver.Chrome(service=Service(CHROMEDRIVER_PATH), options=options)
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+if bool(distutils.util.strtobool(os.getenv('SELENIUM_IS_REMOTE'))):
+    time.sleep(5)
+    driver = webdriver.Remote(os.getenv('SELENIUM_REMOTE_URL'), options=options)
+else:
+    CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/{os.getenv("SELENIUM_CHROME_DRIVER")}')
+    driver = webdriver.Chrome(service=Service(CHROMEDRIVER_PATH), options=options)
 
 
 logger.info(f'Getting fuel data from {os.getenv("FUEL_URL")}')

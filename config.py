@@ -4,7 +4,7 @@ from os import getenv
 
 from custom_logging.handler.TelegramMessageHandler import TelegramMessageHandler
 
-load_dotenv()
+load_dotenv(dotenv_path='app_env/.env')
 
 LOGGING_CONFIG = {
     "version": 1,
