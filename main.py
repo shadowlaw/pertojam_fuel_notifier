@@ -82,7 +82,7 @@ try:
         price_change_value = row_arr[-2]
         current_price = row_arr[-3]
         fuel_type = f'{row_arr[0]} {row_arr[1]}' if row_arr[0] in ['Gasolene', 'Auto'] else row_arr[0]
-        msg += f'Fuel Type: {fuel_type}\nCurrent Price: {current_price}\nPrice Change: {price_change_value} {price_change_percentage}\n\n'
+        msg += f'Fuel Type: {fuel_type}\nNew Price: {current_price}\nPrice Change: {price_change_value} {price_change_percentage}\n\n'
 
     logger.info(f'Fuel data parsing successful')
 except Exception as e:
