@@ -1,7 +1,5 @@
-import distutils
 import sys
 import time
-from distutils.util import strtobool
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
@@ -22,28 +20,28 @@ logger = logging.getLogger(__name__)
 # get fuel data
 driver = None
 options = webdriver.ChromeOptions()
-options.headless = bool(strtobool(os.getenv("SELENIUM_HEADLESS")))
+options.headless = config.APP["SELENIUM_HEADLESS"]
 options.add_argument('--ignore-ssl-errors=yes')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 
-if bool(distutils.util.strtobool(os.getenv('SELENIUM_IS_REMOTE'))):
+if config.APP['SELENIUM_IS_REMOTE']:
     time.sleep(5)
-    driver = webdriver.Remote(os.getenv('SELENIUM_REMOTE_URL'), options=options)
+    driver = webdriver.Remote(config.APP['SELENIUM_REMOTE_URL'], options=options)
 else:
-    CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/{os.getenv("SELENIUM_CHROME_DRIVER")}')
+    CHROMEDRIVER_PATH = os.path.normpath(f'{os.getcwd()}/drivers/chrome/chromedriver')
     driver = webdriver.Chrome(service=Service(CHROMEDRIVER_PATH), options=options)
 
 
-logger.info(f'Getting fuel data from {os.getenv("FUEL_URL")}')
+logger.info(f'Getting fuel data from {config.APP["FUEL_URL"]}')
 
 try:
-    driver.get(os.getenv("FUEL_URL"))
+    driver.get(config.APP["FUEL_URL"])
 except TimeoutException as e:
     logger.error(e.msg)
     try:
-        retry_function(driver.get, retries=3, url=os.getenv('FUEL_URL'))
+        retry_function(driver.get, retries=3, url=config.APP['FUEL_URL'])
     except RetryException as e:
         logger.critical(e.msg)
         sys.exit()
@@ -51,14 +49,14 @@ except Exception as e:
     logger.critical(f"Critical Error {e}")
     sys.exit()
 
-logger.info(f'Successful request from {os.getenv("FUEL_URL")}')
+logger.info(f'Successful request from {config.APP["FUEL_URL"]}')
 
 
 table = None
 try:
-    table = driver.find_element(by=By.XPATH, value=os.getenv("FUEL_TABLE_PATH"))
+    table = driver.find_element(by=By.XPATH, value=config.APP["FUEL_TABLE_PATH"])
 except NoSuchElementException as e:
-    logger.critical(f"Unable to locate fuel price table using xpath {os.getenv('FUEL_TABLE_PATH')}")
+    logger.critical(f"Unable to locate fuel price table using xpath {config.APP['FUEL_TABLE_PATH']}")
     sys.exit()
 except Exception as e:
     logger.critical(f"{type(e).__name__}:{e}")
@@ -88,9 +86,9 @@ try:
 except Exception as e:
     logger.critical(f"{type(e).__name__}:{e}")
     sys.exit()
-msg += f'Data source: {os.getenv("FUEL_URL")}'
+msg += f'Data source: {config.APP["FUEL_URL"]}'
 
-telegram_url = f'https://api.telegram.org/bot{os.getenv("TELEGRAM_TOKEN")}/sendMessage?chat_id={os.getenv("TELEGRAM_GROUP_ID")}&text={msg}'
+telegram_url = f'https://api.telegram.org/bot{config.APP["TELEGRAM_TOKEN"]}/sendMessage?chat_id={config.APP["TELEGRAM_GROUP_ID"]}&text={msg}'
 
 logger.info(f'Sending Telegram message')
 try:
